@@ -974,7 +974,7 @@ static void lv_label_refr_text(lv_obj_t * obj)
                     a.end_value   = tmp;
                 }
             }
-
+ 
             lv_anim_set_duration(&a, anim_time);
             lv_anim_set_playback_duration(&a, a.duration);
 
@@ -986,8 +986,8 @@ static void lv_label_refr_text(lv_obj_t * obj)
         }
         else {
             /*Delete the offset animation if not required*/
-            lv_anim_delete(obj, set_ofs_x_anim);
-            label->offset.x = 0;
+            // lv_anim_delete(obj, set_ofs_x_anim);
+            // label->offset.x = 0;
         }
 
         if(size.y > lv_area_get_height(&txt_coords) && hor_anim == false) {
@@ -1080,8 +1080,8 @@ static void lv_label_refr_text(lv_obj_t * obj)
         }
         else {
             /*Delete the offset animation if not required*/
-            lv_anim_delete(obj, set_ofs_x_anim);
-            label->offset.x = 0;
+            // lv_anim_delete(obj, set_ofs_x_anim);
+            // label->offset.x = 0;
         }
 
         if(size.y > lv_area_get_height(&txt_coords) && hor_anim == false) {
@@ -1266,6 +1266,7 @@ static void set_ofs_x_anim(void * obj, int32_t v)
 {
     lv_label_t * label = (lv_label_t *)obj;
     label->offset.x    = v;
+    LV_LOG_USER( "offset:%d", label->offset.x );
     lv_obj_invalidate(obj);
 }
 

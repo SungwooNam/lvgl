@@ -237,7 +237,7 @@ void LV_ATTRIBUTE_FAST_MEM lv_draw_sw_blend_color_to_i1(lv_draw_sw_blend_fill_ds
                 for(int32_t x = 0; x < w; x++) {
                     uint8_t * dest_bit = &dest_buf[(x + bit_ofs) / 8];
                     uint8_t current_bit = (*dest_bit >> (7 - ((x + bit_ofs) % 8))) & 0x01;
-                    uint8_t new_bit = (opa * src_color + (255 - opa) * current_bit) / 255;
+                    uint8_t new_bit = (opa * src_color + (255 - opa) * current_bit) / (I1_LUM_THRESHOLD + 1);
                     if(new_bit) {
                         set_bit(dest_buf, x + bit_ofs);
                     }
@@ -267,7 +267,7 @@ void LV_ATTRIBUTE_FAST_MEM lv_draw_sw_blend_color_to_i1(lv_draw_sw_blend_fill_ds
                     else {
                         uint8_t * dest_bit = &dest_buf[(x + bit_ofs) / 8];
                         uint8_t current_bit = (*dest_bit >> (7 - ((x + bit_ofs) % 8))) & 0x01;
-                        uint8_t new_bit = (mask_val * src_color + (255 - mask_val) * current_bit) / 255;
+                        uint8_t new_bit = (mask_val * src_color + (255 - mask_val) * current_bit) / (I1_LUM_THRESHOLD + 1);
                         if(new_bit) {
                             set_bit(dest_buf, x + bit_ofs);
                         }
@@ -290,8 +290,8 @@ void LV_ATTRIBUTE_FAST_MEM lv_draw_sw_blend_color_to_i1(lv_draw_sw_blend_fill_ds
                     if(mask_val == LV_OPA_TRANSP) continue;
                     uint8_t * dest_bit = &dest_buf[(x + bit_ofs) / 8];
                     uint8_t current_bit = (*dest_bit >> (7 - ((x  + bit_ofs) % 8))) & 0x01;
-                    uint8_t blended_opa = (mask_val * opa) / 255;
-                    uint8_t new_bit = (blended_opa * src_color + (255 - blended_opa) * current_bit) / 255;
+                    uint8_t blended_opa = (mask_val * opa) / (I1_LUM_THRESHOLD + 1);
+                    uint8_t new_bit = (blended_opa * src_color + (255 - blended_opa) * current_bit) / (I1_LUM_THRESHOLD + 1);
                     if(new_bit) {
                         set_bit(dest_buf, x + bit_ofs);
                     }

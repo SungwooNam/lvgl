@@ -102,7 +102,7 @@ lv_display_t * lv_linux_fbdev_create(void)
     LV_ASSERT_MALLOC(dsc);
     if(dsc == NULL) return NULL;
 
-    lv_display_t * disp = lv_display_create(800, 480);
+    lv_display_t * disp = lv_display_create(128, 64);
     if(disp == NULL) {
         lv_free(dsc);
         return NULL;
@@ -205,6 +205,9 @@ void lv_linux_fbdev_set_file(lv_display_t * disp, const char * file)
         case 32:
             lv_display_set_color_format(disp, LV_COLOR_FORMAT_XRGB8888);
             break;
+        case 1:
+            lv_display_set_color_format(disp, LV_COLOR_FORMAT_I1);
+            break;
         default:
             LV_LOG_WARN("Not supported color format (%d bits)", dsc->vinfo.bits_per_pixel);
             return;
@@ -213,7 +216,8 @@ void lv_linux_fbdev_set_file(lv_display_t * disp, const char * file)
     int32_t hor_res = dsc->vinfo.xres;
     int32_t ver_res = dsc->vinfo.yres;
     int32_t width = dsc->vinfo.width;
-    uint32_t draw_buf_size = hor_res * (dsc->vinfo.bits_per_pixel >> 3);
+    // uint32_t draw_buf_size = hor_res * (dsc->vinfo.bits_per_pixel >> 3);
+    uint32_t draw_buf_size = hor_res;
     if(LV_LINUX_FBDEV_RENDER_MODE == LV_DISPLAY_RENDER_MODE_PARTIAL) {
         draw_buf_size *= LV_LINUX_FBDEV_BUFFER_SIZE;
     }
@@ -330,11 +334,38 @@ static void flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * colo
         }
     }
     else {
-        w = lv_area_get_width(area);
-        for(y = area->y1; y <= area->y2; y++) {
-            lv_memcpy(&fbp[fb_pos], color_p, w * px_size);
-            fb_pos += dsc->finfo.line_length;
-            color_p += w * px_size;
+        if( cf == LV_COLOR_FORMAT_I1 )
+        {
+            color_p += LV_COLOR_INDEXED_PALETTE_SIZE(cf) * sizeof(lv_color32_t);
+
+            w = lv_area_get_width(area);
+            // fb_pos += area->y1*dsc->finfo.line_length;
+            color_p += area->y1*dsc->finfo.line_length;
+            for(y = area->y1; y <= area->y2; y++) {
+                int32_t sx = area->x1 / 8;
+                int32_t ex = area->x2 / 8;
+                for( int32_t px = sx; px <= ex; px++) {
+                    fbp[fb_pos + px] = ((color_p[px] & 0x01) << 7) |
+                                       ((color_p[px] & 0x02) << 5) |
+                                       ((color_p[px] & 0x04) << 3) |
+                                       ((color_p[px] & 0x08) << 1) |
+                                       ((color_p[px] & 0x10) >> 1) |
+                                       ((color_p[px] & 0x20) >> 3) |
+                                       ((color_p[px] & 0x40) >> 5) |
+                                       ((color_p[px] & 0x80) >> 7);
+                }
+                fb_pos += dsc->finfo.line_length;
+                color_p += dsc->finfo.line_length;
+            }
+        }
+        else
+        {
+            w = lv_area_get_width(area);
+            for(y = area->y1; y <= area->y2; y++) {
+                lv_memcpy(&fbp[fb_pos], color_p, w * px_size);
+                fb_pos += dsc->finfo.line_length;
+                color_p += w * px_size;
+            }
         }
     }
 

@@ -278,7 +278,8 @@ void lv_draw_sw_box_shadow(lv_draw_unit_t * draw_unit, const lv_draw_box_shadow_
                     lv_draw_sw_blend(draw_unit, &blend_dsc);
                 }
                 else {
-                    blend_dsc.opa = opa == LV_OPA_COVER ? sh_buf_tmp[0] : LV_OPA_MIX2(sh_buf_tmp[0], dsc->opa);
+                    // blend_dsc.opa = opa == LV_OPA_COVER ? sh_buf_tmp[0] : LV_OPA_MIX2(sh_buf_tmp[0], dsc->opa);
+                    blend_dsc.opa = LV_OPA_COVER;
                     lv_draw_sw_blend(draw_unit, &blend_dsc);
                 }
                 sh_buf_tmp += corner_size;
@@ -329,6 +330,7 @@ void lv_draw_sw_box_shadow(lv_draw_unit_t * draw_unit, const lv_draw_box_shadow_
                 }
                 else {
                     blend_dsc.opa = opa == LV_OPA_COVER ? sh_buf_tmp[0] : (sh_buf_tmp[0] * dsc->opa) >> 8;
+                    blend_dsc.opa = LV_OPA_COVER;
                     lv_draw_sw_blend(draw_unit, &blend_dsc);
 
                 }
